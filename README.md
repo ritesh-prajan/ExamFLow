@@ -17,72 +17,142 @@ Transform your syllabus into a structured, personalized study roadmap powered by
 
 ## Overview
 
-ExamFlow AI is a modern exam preparation platform designed to help students plan efficiently, stay consistent, and maximize performance.
+ExamFlow AI is a modern AI-powered exam preparation platform designed to help students plan efficiently, stay consistent, and maximize performance.
 
-Users can upload a syllabus PDF or enter content manually. The platform analyzes modules, topics, timelines, and creates an adaptive study schedule based on deadlines, progress, and subject priority.
-
-Whether preparing months in advance or revising under limited time, ExamFlow AI adjusts accordingly.
+Users can upload a syllabus PDF or manually enter topics. The platform analyzes modules, timelines, priorities, and creates a personalized study schedule that adapts to deadlines and progress.
 
 ---
 
 ## Key Features
 
-### AI Syllabus Analyzer
-- Upload syllabus PDFs
-- Extract modules, chapters, and topics
-- Estimate study duration automatically
-
-### Smart Study Planner
-- Personalized daily schedules
-- Deadline-driven planning
-- Dynamic timetable adjustments
-
-### Focus Timer
-- Built-in study session timer
-- Tracks productive hours
-- Measures consistency over time
-
-### Crisis Mode
-- Optimized last-minute preparation
-- Prioritizes high-weightage topics
-- Rebuilds schedules instantly
-
-### Professor Mode
-- AI-powered tutor assistance
-- Instant doubt clarification
-- Summary and quiz generation
-
-### Analytics Dashboard
-- Progress tracking
-- Subject-wise performance insights
-- Visual completion reports
-
-### Motivation System
-- Study streak tracking
-- Goal milestones
-- Smart reminders
+- AI syllabus analyzer  
+- Personalized study planner  
+- Focus timer with hour tracking  
+- Crisis Mode for last-minute preparation  
+- AI tutor assistance  
+- Progress analytics dashboard  
+- Goal milestones and reminders  
 
 ---
 
 ## Technology Stack
 
-| Layer      | Technologies |
-|-----------|-------------|
-| Frontend  | React 19, TypeScript, Vite |
-| Backend   | Node.js, Express.js |
-| Database  | Firebase Firestore |
-| AI Layer  | Gemini API |
+| Layer | Technologies |
+|------|-------------|
+| Frontend | React 19, TypeScript, Vite |
+| Backend | Node.js, Express.js |
+| Database | Firebase Firestore |
+| AI Integration | Gemini API |
 
 ---
 
-## Project Structure
+## Requirements
+
+Before starting, install:
+
+- Node.js (Version 18 or above recommended)  
+- npm (included with Node.js)  
+- Git (optional)
+
+Check installation:
 
 ```bash
+node -v
+npm -v
+Installation Guide
+Step 1: Download Project
+
+Using Git:
+
+git clone https://github.com/yourusername/examflow-ai.git
+cd examflow-ai
+
+Or download ZIP and extract the folder manually.
+
+Step 2: Install Dependencies
+
+Run:
+
+npm install
+
+This installs all required packages from package.json.
+
+Step 3: Configure Environment Variables
+
+Create a file named .env.local
+
+GEMINI_API_KEY=your_api_key
+VITE_FIREBASE_API_KEY=your_key
+VITE_FIREBASE_AUTH_DOMAIN=your_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_id
+VITE_FIREBASE_APP_ID=your_app_id
+
+Replace the values with your actual Firebase and Gemini credentials.
+
+How to Run the Project
+Start Development Server
+npm run dev
+
+After running, terminal will display something similar to:
+
+Local: http://localhost:5173/
+
+Open that link in your browser.
+
+Useful Commands
+Run Development Mode
+npm run dev
+Build for Production
+npm run build
+Preview Production Build
+npm run preview
+Install New Package
+npm install package-name
+Project Structure
 ExamFlow-AI/
-│── src/                # Frontend source code
-│── functions/          # API / backend logic
-│── public/             # Static assets
-│── server.ts           # Server entry point
-│── firebase.ts         # Firebase configuration
-│── package.json
-│── netlify.toml
+│── src/                Main frontend source code
+│── public/             Images and static files
+│── functions/          Backend/API logic
+│── package.json        Dependencies and scripts
+│── vite.config.ts      Vite configuration
+│── netlify.toml        Netlify deployment config
+Deployment
+Netlify
+Run:
+npm run build
+Upload the generated dist folder to Netlify.
+Vercel
+
+Connect GitHub repository and deploy automatically.
+
+Firebase Hosting
+firebase init
+firebase deploy
+Troubleshooting
+npm command not working
+
+Install Node.js and restart terminal.
+
+Port already in use
+npm run dev -- --port 3000
+Blank page after running
+
+Check .env.local values and inspect browser console for errors.
+
+Roadmap
+AI Voice Tutor
+Mobile Application
+Collaborative Study Rooms
+Rank Prediction System
+Competitive Exam Mode
+License
+
+MIT License © 2026 ExamFlow AI
+
+<div align="center">
+
+Built for students who value structure, consistency, and results.
+
+</div> ```
