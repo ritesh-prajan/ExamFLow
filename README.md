@@ -100,4 +100,4 @@ MIT License © 2026 ExamFlow AI
 
 Built for students who value structure, consistency, and results.
 
-</div> ```
+</div>
