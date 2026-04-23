@@ -25,13 +25,13 @@ Users can upload a syllabus PDF or manually enter topics. The platform analyzes 
 
 ## Key Features
 
-- AI syllabus analyzer  
-- Personalized study planner  
-- Focus timer with hour tracking  
-- Crisis Mode for last-minute preparation  
-- AI tutor assistance  
-- Progress analytics dashboard  
-- Goal milestones and reminders  
+- AI syllabus analyzer
+- Personalized study planner
+- Focus timer with hour tracking
+- Crisis Mode for last-minute preparation
+- AI tutor assistance
+- Progress analytics dashboard
+- Goal milestones and reminders
 
 ---
 
@@ -60,44 +60,79 @@ Check installation:
 node -v
 npm -v
 ```
-Installation Guide
-1. Clone Repository
+
+---
+
+## Installation Guide
+
+### 1. Clone Repository
+
+```bash
 git clone https://github.com/yourusername/examflow-ai.git
 cd examflow-ai
-2. Install Dependencies
+```
+
+### 2. Install Dependencies
+
+```bash
 npm install
-3. Configure Environment Variables
+```
 
-Create a file named .env.local
+### 3. Configure Environment Variables
 
+Create a file named `.env.local`
+
+```env
 GEMINI_API_KEY=your_api_key
 VITE_FIREBASE_API_KEY=your_key
 VITE_FIREBASE_AUTH_DOMAIN=your_domain
 VITE_FIREBASE_PROJECT_ID=your_project_id
-Run Project
+VITE_FIREBASE_STORAGE_BUCKET=your_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+---
+
+## Run Project
+
+```bash
 npm run dev
+```
 
 Open in browser:
 
+```text
 http://localhost:5173
-Build for Production
+```
+
+---
+
+## Build for Production
+
+```bash
 npm run build
-Deployment
-Netlify
+```
 
-Upload the generated dist folder after running:
+---
 
+## Deployment
+
+### Netlify
+
+```bash
 npm run build
-Vercel
+```
 
-Connect your GitHub repository and deploy.
+Upload the generated `dist` folder.
 
-License
+### Vercel
 
-MIT License © 2026 ExamFlow AI
+Connect your GitHub repository and deploy automatically.
 
-<div align="center">
+### Firebase Hosting
 
-Built for students who value structure, consistency, and results.
-
-</div>
+```bash
+firebase init
+firebase deploy
+```
