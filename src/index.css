@@ -1,0 +1,275 @@
+@import "tailwindcss";
+
+:root {
+  --card: #ffffff;
+  --ring: #1da1f2;
+  --input: #f1f5f9;
+  --muted: #f1f5f9;
+  --accent: #f1f5f9;
+  --border: #e2e8f0;
+  --radius: 1.3rem;
+  --chart-1: #1e9df1;
+  --chart-2: #00b87a;
+  --chart-3: #f7b928;
+  --chart-4: #17bf63;
+  --chart-5: #e0245e;
+  --popover: #ffffff;
+  --primary: #1e9df1;
+  --sidebar: #f8fafc;
+  --font-mono: Menlo, monospace;
+  --font-sans: Open Sans, sans-serif;
+  --secondary: #0f1419;
+  --background: #ffffff;
+  --font-serif: Georgia, serif;
+  --foreground: #0f1419;
+  --destructive: #ef4444;
+  --shadow-color: rgba(29,161,242,0.1);
+  --sidebar-ring: #1da1f2;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-border: #e2e8f0;
+  --card-foreground: #1e293b;
+  --shadow-blur: 15px;
+  --shadow-offset-x: 0px;
+  --shadow-offset-y: 4px;
+  --sidebar-primary: #1e9df1;
+  --muted-foreground: #64748b;
+  --accent-foreground: #1e9df1;
+  --popover-foreground: #1e293b;
+  --primary-foreground: #ffffff;
+  --sidebar-foreground: #1e293b;
+  --secondary-foreground: #ffffff;
+  --destructive-foreground: #ffffff;
+  --sidebar-accent-foreground: #1e9df1;
+  --sidebar-primary-foreground: #ffffff;
+}
+
+.dark {
+  --card: #17181c;
+  --ring: #1da1f2;
+  --input: #22303c;
+  --muted: #181818;
+  --accent: #061622;
+  --border: #242628;
+  --chart-1: #1e9df1;
+  --chart-2: #00b87a;
+  --chart-3: #f7b928;
+  --chart-4: #17bf63;
+  --chart-5: #e0245e;
+  --popover: #000000;
+  --primary: #1c9cf0;
+  --sidebar: #17181c;
+  --secondary: #f0f3f4;
+  --background: #000000;
+  --foreground: #e7e9ea;
+  --destructive: #f4212e;
+  --shadow-color: rgba(29,161,242,0.25);
+  --sidebar-ring: #1da1f2;
+  --sidebar-accent: #061622;
+  --sidebar-border: #38444d;
+  --card-foreground: #d9d9d9;
+  --shadow-blur: 15px;
+  --sidebar-primary: #1da1f2;
+  --muted-foreground: #72767a;
+  --accent-foreground: #1c9cf0;
+  --popover-foreground: #e7e9ea;
+  --primary-foreground: #ffffff;
+  --sidebar-foreground: #d9d9d9;
+  --secondary-foreground: #0f1419;
+  --destructive-foreground: #ffffff;
+  --sidebar-accent-foreground: #1c9cf0;
+  --sidebar-primary-foreground: #ffffff;
+}
+
+@theme inline {
+  --color-card: var(--card);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-radius: var(--radius);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-popover: var(--popover);
+  --color-primary: var(--primary);
+  --color-sidebar: var(--sidebar);
+  --color-font-mono: var(--font-mono);
+  --color-font-sans: var(--font-sans);
+  --color-secondary: var(--secondary);
+  --color-background: var(--background);
+  --color-font-serif: var(--font-serif);
+  --color-foreground: var(--foreground);
+  --color-destructive: var(--destructive);
+  --color-shadow-blur: var(--shadow-blur);
+  --color-shadow-color: var(--shadow-color);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-shadow-spread: var(--shadow-spread);
+  --color-shadow-opacity: var(--shadow-opacity);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-card-foreground: var(--card-foreground);
+  --color-shadow-offset-x: var(--shadow-offset-x);
+  --color-shadow-offset-y: var(--shadow-offset-y);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden;
+    touch-action: manipulation;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-card/80 backdrop-blur-xl border border-border rounded-2xl shadow-[0_4px_20px_-4px_var(--shadow-color)];
+  }
+  
+  .dark .glass {
+    @apply bg-card/60 backdrop-blur-xl border-white/5 shadow-none;
+  }
+  
+  .glass-hover {
+    @apply transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 active:scale-[0.96] active:bg-primary/[0.03];
+  }
+
+  .btn-touch {
+    @apply active:scale-95 active:opacity-80 transition-transform cursor-pointer select-none;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:opacity-90 px-6 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-primary/20;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary hover:opacity-90 text-secondary-foreground px-6 py-3 rounded-xl font-semibold transition-all active:scale-95 border border-border;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(2rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInUpDelay {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInCorner {
+    from {
+      opacity: 0;
+      transform: translateY(-1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 1s ease-out forwards;
+  }
+  
+  .animate-fade-in-up-delay {
+    animation: fadeInUpDelay 1s ease-out 0.3s forwards;
+  }
+  
+  .animate-fade-in-corner {
+    animation: fadeInCorner 1s ease-out 0.9s forwards;
+  }
+}
+
+/* Container */
+.btn-plus-cross {
+  position: relative;
+  width: var(--pc-size, 32px);
+  height: var(--pc-size, 32px);
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Creating the two lines */
+.btn-plus-cross::before,
+.btn-plus-cross::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  width: 80%;
+  height: 2px;
+  background-color: currentColor;
+  margin-top: -1px; /* Center vertical alignment */
+  border-radius: 99px;
+  transition: background-color 0.2s ease;
+}
+
+/* Horizontal line stays at 0deg */
+.btn-plus-cross::before {
+  transform: rotate(0deg);
+}
+
+/* Vertical line stays at 90deg */
+.btn-plus-cross::after {
+  transform: rotate(90deg);
+}
+
+/* Animation to Cross (Rotate 45 degrees or 135 degrees) */
+.btn-plus-cross.active {
+  transform: rotate(45deg);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-background;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-muted rounded-full hover:bg-muted-foreground/20;
+}
+
+/* Hide navigation in focus mode */
+.focus-mode nav {
+  display: none;
+}

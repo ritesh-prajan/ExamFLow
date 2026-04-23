@@ -1,0 +1,176 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {uid}
+    // Fields:
+    //   - uid: string (required, immutable) - Unique user ID from Firebase Auth
+    //   - email: string (required, immutable) - User's email address
+    //   - displayName: string (required, min 2, max 50) - User's full name
+    //   - photoURL: string (optional) - User's profile picture URL
+    //   - college: string (required, min 2, max 100) - User's college or university
+    //   - bio: string (optional, max 500) - User's bio
+    //   - onboardingCompleted: bool (required) - Whether the user has completed onboarding
+    //   - createdAt: string (required, immutable) - Account creation timestamp (ISO 8601)
+    //   - role: string (optional) - User role (admin, user)
+    //
+    // Collection: users/{uid}/subjects
+    // Document ID: {subjectId}
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required, min 1, max 100)
+    //   - examDate: string (required, ISO 8601)
+    //   - dailyHours: number (required, min 0, max 24)
+    //   - targetScore: number (optional, min 0, max 100)
+    //   - createdAt: string (required, immutable)
+    //   - userId: string (required, immutable)
+    //
+    // Collection: users/{uid}/subjects/{subjectId}/topics
+    // Document ID: {topicId}
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required, min 1, max 200)
+    //   - module: string (required, min 1, max 100)
+    //   - priority: string (required, enum: High, Medium, Low)
+    //   - estimatedTime: number (required, min 0)
+    //   - mastery: number (required, min 0, max 100)
+    //   - status: string (required, enum: Not Started, In Progress, Mastered, Needs Revision)
+    //   - lastStudied: string (optional, ISO 8601)
+    //   - scheduledDate: string (optional, YYYY-MM-DD)
+    //   - dependencies: list (required)
+    //   - subjectId: string (required, immutable)
+    //   - userId: string (required, immutable)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (request.auth.token.email == "riteshprajan@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string &&
+        dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    function isValidSimpleDate(dateStr) {
+      return dateStr is string &&
+        dateStr.matches("^\\d{4}-\\d{2}-\\d{2}$");
+    }
+
+    function isValidUrl(url) {
+      return url is string && (url.startsWith('https://') || url.startsWith('http://'));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'displayName', 'college', 'onboardingCompleted', 'createdAt']) &&
+             data.keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'college', 'bio', 'onboardingCompleted', 'createdAt', 'role', 'selectedSubjectId', 'learningPreference', 'theme']) &&
+             data.uid == request.auth.uid &&
+             data.email == request.auth.token.email &&
+             data.displayName is string && data.displayName.size() >= 2 && data.displayName.size() <= 50 &&
+             (!('photoURL' in data) || (data.photoURL is string && isValidUrl(data.photoURL))) &&
+             data.college is string && data.college.size() >= 2 && data.college.size() <= 100 &&
+             (!('bio' in data) || (data.bio is string && data.bio.size() <= 500)) &&
+             (!('selectedSubjectId' in data) || (data.selectedSubjectId is string || data.selectedSubjectId == null)) &&
+             (!('learningPreference' in data) || (data.learningPreference in ['adaptive', 'sequential'])) &&
+             (!('theme' in data) || (data.theme in ['light', 'dark', 'system'])) &&
+             data.onboardingCompleted is bool &&
+             isValidDateString(data.createdAt);
+    }
+
+    function isValidSubject(data) {
+      return data.keys().hasAll(['id', 'name', 'examDate', 'dailyHours', 'createdAt', 'userId']) &&
+             data.keys().hasOnly(['id', 'name', 'examDate', 'examTime', 'dailyHours', 'targetScore', 'createdAt', 'updatedAt', 'userId', 'feedbackGiven', 'examRating', 'examFeedback', 'graphLayout']) &&
+             data.id is string &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             isValidDateString(data.examDate) &&
+             (!('examTime' in data) || (data.examTime is string && data.examTime.matches("^\\d{2}:\\d{2}$"))) &&
+             data.dailyHours is number && data.dailyHours >= 0 && data.dailyHours <= 24 &&
+             (!('targetScore' in data) || (data.targetScore is number && data.targetScore >= 0 && data.targetScore <= 100)) &&
+             isValidDateString(data.createdAt) &&
+             (!('updatedAt' in data) || isValidDateString(data.updatedAt)) &&
+             data.userId == request.auth.uid &&
+             (!('feedbackGiven' in data) || data.feedbackGiven is bool) &&
+             (!('examRating' in data) || (data.examRating is number && data.examRating >= 1 && data.examRating <= 4)) &&
+             (!('examFeedback' in data) || (data.examFeedback is string && data.examFeedback.size() <= 2000)) &&
+             (!('graphLayout' in data) || data.graphLayout is map);
+    }
+
+    function isValidTopic(data) {
+      return data.keys().hasAll(['id', 'name', 'module', 'priority', 'estimatedTime', 'mastery', 'status', 'dependencies', 'subjectId', 'userId']) &&
+             data.keys().hasOnly(['id', 'name', 'module', 'priority', 'estimatedTime', 'mastery', 'status', 'lastStudied', 'scheduledDate', 'dependencies', 'subjectId', 'userId', 'order', 'createdAt', 'updatedAt', 'difficulty']) &&
+             data.id is string &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 200 &&
+             data.module is string && data.module.size() >= 1 && data.module.size() <= 100 &&
+             data.priority in ['High', 'Medium', 'Low'] &&
+             data.estimatedTime is number && data.estimatedTime >= 0 &&
+             data.mastery is number && data.mastery >= 0 && data.mastery <= 100 &&
+             data.status in ['Not Started', 'In Progress', 'Mastered', 'Needs Revision'] &&
+             (!('lastStudied' in data) || isValidDateString(data.lastStudied)) &&
+             (!('scheduledDate' in data) || isValidSimpleDate(data.scheduledDate)) &&
+             (!('order' in data) || data.order is number) &&
+             (!('createdAt' in data) || isValidDateString(data.createdAt)) &&
+             (!('updatedAt' in data) || isValidDateString(data.updatedAt)) &&
+             (!('difficulty' in data) || (data.difficulty is number && data.difficulty >= 1 && data.difficulty <= 5)) &&
+             data.dependencies is list &&
+             data.userId == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+
+      match /subjects/{subjectId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidSubject(request.resource.data);
+        allow update: if (isOwner(userId) && isValidSubject(request.resource.data) &&
+                        request.resource.data.id == resource.data.id &&
+                        request.resource.data.createdAt == resource.data.createdAt &&
+                        request.resource.data.userId == resource.data.userId) || 
+                        isAdmin();
+        allow delete: if isOwner(userId) || isAdmin();
+
+        match /topics/{topicId} {
+          allow read: if isOwner(userId) || isAdmin();
+          allow create: if isOwner(userId) && isValidTopic(request.resource.data);
+          allow update: if (isOwner(userId) && isValidTopic(request.resource.data) &&
+                          request.resource.data.id == resource.data.id &&
+                          request.resource.data.subjectId == resource.data.subjectId &&
+                          request.resource.data.userId == resource.data.userId) || 
+                          isAdmin();
+          allow delete: if isOwner(userId) || isAdmin();
+        }
+      }
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

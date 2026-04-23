@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user ID from Firebase Auth" },
+        "email": { "type": "string", "format": "email", "description": "User's email address" },
+        "displayName": { "type": "string", "description": "User's full name" },
+        "photoURL": { "type": "string", "description": "User's profile picture URL" },
+        "college": { "type": "string", "description": "User's college or university" },
+        "bio": { "type": "string", "description": "User's bio" },
+        "onboardingCompleted": { "type": "boolean", "description": "Whether the user has completed onboarding" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" }
+      },
+      "required": ["uid", "email", "displayName", "college", "onboardingCompleted"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Subject information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "examDate": { "type": "string", "format": "date-time" },
+        "examTime": { "type": "string", "description": "HH:mm format" },
+        "dailyHours": { "type": "number" },
+        "targetScore": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" },
+        "feedbackGiven": { "type": "boolean" },
+        "examRating": { "type": "number" },
+        "examFeedback": { "type": "string" }
+      },
+      "required": ["id", "name", "examDate", "dailyHours", "createdAt", "userId"]
+    },
+    "Topic": {
+      "title": "Topic",
+      "description": "Portion topic information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "module": { "type": "string" },
+        "priority": { "type": "string", "enum": ["High", "Medium", "Low"] },
+        "estimatedTime": { "type": "number" },
+        "mastery": { "type": "number" },
+        "status": { "type": "string", "enum": ["Not Started", "In Progress", "Mastered", "Needs Revision"] },
+        "lastStudied": { "type": "string", "format": "date-time" },
+        "dependencies": { "type": "array", "items": { "type": "string" } },
+        "subjectId": { "type": "string" },
+        "userId": { "type": "string" },
+        "scheduledDate": { "type": "string", "format": "date" },
+        "order": { "type": "number" }
+      },
+      "required": ["id", "name", "module", "priority", "estimatedTime", "mastery", "status", "subjectId", "userId"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profile documents"
+    },
+    "/users/{uid}/subjects/{subjectId}": {
+      "schema": "Subject",
+      "description": "User's subjects"
+    },
+    "/users/{uid}/subjects/{subjectId}/topics/{topicId}": {
+      "schema": "Topic",
+      "description": "Topics for a subject"
+    }
+  }
+}
