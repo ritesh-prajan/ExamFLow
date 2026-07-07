@@ -1,0 +1,121 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- III. Primitives ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- II. Validation Blueprints ---
+
+    function isValidUser(data) {
+      let requiredFields = ['uid', 'email', 'displayName', 'college', 'onboardingCompleted'];
+      let optionalFields = ['photoURL', 'bio', 'selectedSubjectId', 'learningPreference', 'theme', 'accentColor', 'createdAt'];
+      let allFields = requiredFields.concat(optionalFields);
+      
+      return data.keys().hasAll(requiredFields)
+        && data.uid == request.auth.uid
+        && data.email is string && data.email.size() <= 256
+        && data.displayName is string && data.displayName.size() <= 128
+        && data.college is string && data.college.size() <= 128
+        && data.onboardingCompleted is bool
+        && (!data.keys().contains('bio') || (data.bio is string && data.bio.size() <= 500))
+        && (!data.keys().contains('photoURL') || (data.photoURL is string && data.photoURL.size() <= 1024))
+        && (!data.keys().contains('learningPreference') || data.learningPreference in ['adaptive', 'sequential'])
+        && (!data.keys().contains('theme') || data.theme in ['light', 'dark', 'system']);
+    }
+
+    function isValidSubject(data) {
+      let requiredFields = ['id', 'name', 'examDate', 'dailyHours', 'createdAt', 'userId'];
+      
+      return data.keys().hasAll(requiredFields)
+        && data.userId == request.auth.uid
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 256
+        && data.dailyHours is number && data.dailyHours >= 0 && data.dailyHours <= 24
+        && data.examDate is string && data.examDate.size() <= 64
+        && data.createdAt is string && data.createdAt.size() <= 64
+        && (!data.keys().contains('notesUrl') || (data.notesUrl is string && data.notesUrl.size() <= 1024))
+        && (!data.keys().contains('subjectCode') || (data.subjectCode is string && data.subjectCode.size() <= 64))
+        && (!data.keys().contains('examTime') || (data.examTime is string && data.examTime.size() <= 8))
+        && (!data.keys().contains('targetScore') || (data.targetScore is number))
+        && (!data.keys().contains('updatedAt') || (data.updatedAt is string && data.updatedAt.size() <= 64));
+    }
+
+    function isValidTopic(data) {
+      let requiredFields = ['id', 'name', 'module', 'priority', 'estimatedTime', 'mastery', 'status', 'subjectId', 'userId'];
+      
+      return data.keys().hasAll(requiredFields)
+        && data.userId == request.auth.uid
+        && data.subjectId is string && data.subjectId.size() <= 128
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 256
+        && data.module is string && data.module.size() <= 128
+        && data.status in ['Not Started', 'In Progress', 'Mastered', 'Needs Revision']
+        && data.mastery is number && data.mastery >= 0 && data.mastery <= 100
+        && data.estimatedTime is number && data.estimatedTime >= 0
+        && data.priority in ['High', 'Medium', 'Low']
+        && (!data.keys().contains('scheduledDate') || (data.scheduledDate == null || (data.scheduledDate is string && data.scheduledDate.size() <= 20)))
+        && (!data.keys().contains('difficulty') || (data.difficulty is number))
+        && (!data.keys().contains('updatedAt') || (data.updatedAt is string && data.updatedAt.size() <= 64));
+    }
+
+    // --- I. Rules Match Blocks ---
+
+    match /users/{uid} {
+      allow get: if isOwner(uid);
+      allow create: if isOwner(uid) && isValidUser(incoming());
+      allow update: if isOwner(uid) && isValidUser(incoming()) 
+                     && incoming().uid == existing().uid
+                     && incoming().email == existing().email;
+
+      match /subjects/{subjectId} {
+        allow list: if isVerified() && isOwner(uid);
+        allow get: if isOwner(uid);
+        allow create: if isVerified() && isOwner(uid) && isValidId(subjectId) && isValidSubject(incoming());
+        allow update: if isVerified() && isOwner(uid) && isValidId(subjectId) && isValidSubject(incoming())
+                      && incoming().userId == existing().userId
+                      && incoming().id == existing().id;
+        allow delete: if isOwner(uid);
+
+        match /topics/{topicId} {
+          allow list: if isVerified() && isOwner(uid);
+          allow get: if isOwner(uid);
+          allow create: if isVerified() && isOwner(uid) && isValidId(topicId) && isValidTopic(incoming());
+          allow update: if isVerified() && isOwner(uid) && isValidId(topicId) && isValidTopic(incoming())
+                        && incoming().userId == existing().userId
+                        && incoming().subjectId == existing().subjectId
+                        && incoming().id == existing().id;
+          allow delete: if isOwner(uid);
+        }
+      }
+    }
+  }
+}
