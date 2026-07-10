@@ -89,11 +89,12 @@ export default function Analytics() {
           <div className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={performanceData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-border" opacity={0.1} vertical={false} />
-                <XAxis dataKey="day" stroke="currentColor" className="text-muted-foreground" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="currentColor" className="text-muted-foreground" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.1} vertical={false} />
+                <XAxis dataKey="day" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px' }}
+                  labelStyle={{ color: 'var(--foreground)' }}
                   itemStyle={{ color: 'var(--primary)' }}
                 />
                 <Line 
@@ -116,11 +117,13 @@ export default function Analytics() {
           <div className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={priorityData}>
-                <XAxis dataKey="priority" stroke="currentColor" className="text-muted-foreground" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="currentColor" className="text-muted-foreground" fontSize={12} tickLine={false} axisLine={false} />
+                <XAxis dataKey="priority" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip 
                   cursor={{ fill: 'var(--accent)', opacity: 0.2 }}
                   contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px' }}
+                  labelStyle={{ color: 'var(--foreground)' }}
+                  itemStyle={{ color: 'var(--primary)' }}
                 />
                 <Bar dataKey="mastery" radius={[4, 4, 0, 0]}>
                   {priorityData.map((entry, index) => (
@@ -144,10 +147,12 @@ export default function Analytics() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={moduleData} layout="vertical">
                 <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" stroke="currentColor" className="text-muted-foreground" fontSize={12} tickLine={false} axisLine={false} width={100} />
+                <YAxis dataKey="name" type="category" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} width={100} />
                 <Tooltip 
                   cursor={{ fill: 'var(--accent)', opacity: 0.2 }}
                   contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px' }}
+                  labelStyle={{ color: 'var(--foreground)' }}
+                  itemStyle={{ color: 'var(--primary)' }}
                 />
                 <Bar dataKey="mastery" radius={[0, 4, 4, 0]}>
                   {moduleData.map((entry, index) => (

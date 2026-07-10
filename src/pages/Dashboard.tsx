@@ -349,7 +349,7 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+        <div className="flex flex-nowrap items-center gap-2 w-full lg:w-auto overflow-x-auto no-scrollbar pb-2 lg:pb-0">
           <button 
             onClick={() => setIsSyllabusManagerOpen(true)}
             className="flex-1 sm:flex-none h-12 flex items-center justify-center gap-2 px-4 rounded-xl bg-accent/50 text-foreground text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all border border-border btn-touch"
