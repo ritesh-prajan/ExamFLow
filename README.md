@@ -55,9 +55,9 @@ The analytics console provides granular feedback on topic preparation and module
 ### 6. Control Center & Preference Calibration
 Adjust settings, calibrate active learning logic ("Adaptive Flow" vs. "Module Linear"), customize styling spectrums (Dark / Light mode, custom colors), configure personal credentials, and manage Gemini API keys.
 
-| Profile tab | Calibration Preferences |
-|---|---|
-| ![Profile Settings](./screenshots/settings_profile.png) | ![Calibration Preferences](./screenshots/preferences_calibration_dark.png) |
+| Profile Tab | Calibration (Dark Mode) | Calibration (Light Mode / Hotpink) |
+|---|---|---|
+| ![Profile Settings](./screenshots/settings_profile.png) | ![Dark Preferences](./screenshots/preferences_calibration_dark.png) | ![Light Preferences](./screenshots/preferences_calibration_light.png) |
 
 ---
 
