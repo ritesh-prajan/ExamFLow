@@ -318,6 +318,48 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('mock=true')) {
+      setState(prev => ({
+        ...prev,
+        user: {
+          uid: 'mock-user-123',
+          displayName: 'Demo Student',
+          email: 'demo@examflow.com',
+          college: 'Stanford University',
+          onboardingCompleted: true,
+          agreedToTerms: true
+        },
+        selectedSubjectId: 'subject-math-101',
+        learningPreference: 'adaptive',
+        theme: 'dark',
+        accentColor: '#1e9df1',
+        subjects: [
+          {
+            id: 'subject-math-101',
+            userId: 'mock-user-123',
+            name: 'Linear Algebra & Calculus',
+            dailyHours: 2,
+            examDate: '2026-12-01',
+            createdAt: new Date().toISOString()
+          }
+        ],
+        modules: [
+          { id: 'm1', name: 'Vector Spaces & Matrices', topics: ['t1', 't2'] },
+          { id: 'm2', name: 'Limits & Derivatives', topics: ['t3', 't4'] },
+          { id: 'm3', name: 'Integrals & Applications', topics: ['t5'] }
+        ],
+        topics: [
+          { id: 't1', userId: 'mock-user-123', subjectId: 'subject-math-101', name: 'Vector Spaces & Subspaces', module: 'Vector Spaces & Matrices', status: 'Mastered', mastery: 100, estimatedTime: 120, dependencies: [] },
+          { id: 't2', userId: 'mock-user-123', subjectId: 'subject-math-101', name: 'Matrix Inversion & Determinants', module: 'Vector Spaces & Matrices', status: 'In Progress', mastery: 55, estimatedTime: 90, dependencies: ['t1'] },
+          { id: 't3', userId: 'mock-user-123', subjectId: 'subject-math-101', name: 'Limits & Continuity', module: 'Limits & Derivatives', status: 'Not Started', mastery: 0, estimatedTime: 60, dependencies: [] },
+          { id: 't4', userId: 'mock-user-123', subjectId: 'subject-math-101', name: 'Differentiation Rules', module: 'Limits & Derivatives', status: 'Not Started', mastery: 0, estimatedTime: 80, dependencies: ['t3'] },
+          { id: 't5', userId: 'mock-user-123', subjectId: 'subject-math-101', name: 'Definite Integrals', module: 'Integrals & Applications', status: 'Not Started', mastery: 0, estimatedTime: 120, dependencies: ['t4'] }
+        ],
+        loading: false
+      }));
+      return;
+    }
+
     let unsubscribeAuth: (() => void) | null = null;
     let unsubscribeUser: (() => void) | null = null;
 
@@ -376,7 +418,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // Listen to subjects
   useEffect(() => {
-    if (!state.user?.uid) return;
+    if (!state.user?.uid || state.user.uid === 'mock-user-123') return;
 
     const subjectsQuery = collection(db, 'users', state.user.uid, 'subjects');
     const unsubscribe = onSnapshot(subjectsQuery, (snapshot) => {
@@ -392,7 +434,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // Listen to topics when a subject is selected
   useEffect(() => {
-    if (state.user?.uid && state.selectedSubjectId) {
+    if (state.user?.uid && state.user.uid !== 'mock-user-123' && state.selectedSubjectId) {
       const topicsQuery = collection(db, 'users', state.user.uid, 'subjects', state.selectedSubjectId, 'topics');
       const unsubscribe = onSnapshot(topicsQuery, (snapshot) => {
         const topics = snapshot.docs

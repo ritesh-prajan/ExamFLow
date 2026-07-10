@@ -6,11 +6,20 @@ ExamFlow is a premium, AI-powered learning management and academic preparation p
 
 ## 📸 Screenshots
 
-### Immersive Dashboard
-![Dashboard Mockup](./screenshots/dashboard_mockup.png)
+### Welcome Landing Page
+![Landing Page](./screenshots/landing_page.png)
+
+### Immersive Study Dashboard
+![Dashboard](./screenshots/dashboard.png)
 
 ### Neural Prerequisite Knowledge Map
-![Knowledge Map Mockup](./screenshots/knowledge_map_mockup.png)
+![Knowledge Map](./screenshots/knowledge_map.png)
+
+### Dynamic Study Plan
+![Study Plan](./screenshots/study_plan.png)
+
+### Preferences & Security Settings
+![Settings](./screenshots/settings.png)
 
 ---
 
