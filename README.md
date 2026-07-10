@@ -1,10 +1,10 @@
-# ExamFlow 🎓⚡
+# ExamFlow 
 
 ExamFlow is a premium, AI-powered learning management and academic preparation platform. It helps students map their curricula, visualize dependencies between topics, estimate study efforts, and track mastery using interactive, modern interfaces.
 
 ---
 
-## 📸 Visual Showcase
+##  Visual Showcase
 
 ### 1. Unified System Dashboard
 The main student workspace is a continuous dashboard displaying key statistics, pacing targets, AI insights, and active learning queues.
@@ -15,23 +15,17 @@ The main student workspace is a continuous dashboard displaying key statistics, 
 ![Dashboard Overview](./screenshots/dashboard_overview.png)
 ![Dashboard Performance](./screenshots/dashboard_performance.png)
 
----
-
-### 2. Neural Prerequisite Knowledge Map
-A graph-based prerequisite mapping node interface showing which topics depend on others for structured, logical learning paths.
-
-![Knowledge Map](./screenshots/knowledge_map.png)
 
 ---
 
-### 3. Adaptive Study Plan Timeline
+### 2. Adaptive Study Plan Timeline
 Generates study tasks daily based on exam date targets, topic priority levels, and baseline preparation hours.
 
 ![Adaptive Study Plan](./screenshots/adaptive_study_plan.png)
 
 ---
 
-### 4. Curriculum Analytics & Mastery velocity
+### 3. Curriculum Analytics & Mastery velocity
 The analytics console provides granular feedback on topic preparation and module mastery levels.
 
 *   **Top (Mastery Velocity & Priority Signal)**: Active charts showcasing preparation completion velocity over 7 cycles and readiness across difficulty vectors.
@@ -42,7 +36,7 @@ The analytics console provides granular feedback on topic preparation and module
 
 ---
 
-### 5. Mastery Heatmap & Syllabus Matrix
+### 4. Mastery Heatmap & Syllabus Matrix
 *   **Mastery Heatmap**: Full-screen grid visualization of curriculum modules, highlighting weaker areas vs. mastered concepts in distinct shades.
 *   **Syllabus Matrix**: Comprehensive topics list partitioned by modules to review estimated learning durations and dependency details.
 
@@ -52,7 +46,7 @@ The analytics console provides granular feedback on topic preparation and module
 
 ---
 
-### 6. Control Center & Preference Calibration
+### 5. Control Center & Preference Calibration
 Adjust settings, calibrate active learning logic ("Adaptive Flow" vs. "Module Linear"), customize styling spectrums (Dark / Light mode, custom colors), configure personal credentials, and manage Gemini API keys.
 
 | Profile Tab | Calibration (Dark Mode) | Calibration (Light Mode / Hotpink) |
@@ -61,7 +55,7 @@ Adjust settings, calibrate active learning logic ("Adaptive Flow" vs. "Module Li
 
 ---
 
-### 7. Dual Vector Auth & Contact Channels
+### 6. Dual Vector Auth & Contact Channels
 Configure dual-factor verification parameters or reach out to support networks.
 
 | Security Matrix | Support Protocol |
@@ -70,7 +64,7 @@ Configure dual-factor verification parameters or reach out to support networks.
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
 *   **Neural Prerequisite Mapping (Knowledge Map)**: Graph-based prerequisite visualization showing which topics depend on others for structured learning.
 *   **Dynamic Study Planner & Scheduler**: Calculates weekly pacing, topic countdowns, and exam preparation trackers based on actual exam dates.
@@ -81,7 +75,7 @@ Configure dual-factor verification parameters or reach out to support networks.
 
 ---
 
-## 🛠️ Getting Started
+##  Getting Started
 
 ### Prerequisites
 *   [Node.js](https://nodejs.org/) (v18 or higher)
@@ -108,7 +102,7 @@ Configure dual-factor verification parameters or reach out to support networks.
 
 ---
 
-## 🔒 Security Configuration
+## Security Configuration
 
 ### Security Headers & Netlify Hosting
 This project ships with pre-configured secure server redirect mappings and strict security headers in [netlify.toml](netlify.toml) including:
