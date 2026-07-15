@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Zap, TrendingUp, CheckCircle2, Clock, ChevronRight, ChevronDown, BookOpen, Grid3X3, Share2, Layers, Brain, Loader2, AlertTriangle, Target, Gauge, ArrowUpRight, Plus, Edit3, Timer, Play, Pause, RotateCcw, RefreshCw, FileText } from 'lucide-react';
+import { Zap, TrendingUp, CheckCircle2, Clock, ChevronRight, ChevronDown, BookOpen, Grid3X3, Share2, Layers, Brain, Loader2, AlertTriangle, Target, Gauge, ArrowUpRight, Plus, Edit3, Timer, Play, Pause, RotateCcw, RefreshCw, FileText, Lock, Unlock } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlusCrossButton } from '@/components/ui/PlusCrossButton';
@@ -784,22 +784,35 @@ export default function Dashboard() {
             </div>
             
             {!hasApiKey ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-2 space-y-3">
-                <div className="p-2 bg-warning/10 rounded-lg text-warning border border-warning/20">
-                  <AlertTriangle size={20} />
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden rounded-2xl bg-card/45 border border-border/40 shadow-inner mt-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-warning/5 opacity-50" />
+                <div className="relative z-10 space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-warning/10 border border-warning/20 flex items-center justify-center mx-auto shadow-lg shadow-warning/5 animate-pulse">
+                    <Lock className="text-warning" size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-widest text-foreground">AI Study Coach (Locked)</h4>
+                    <p className="text-[10px] text-muted-foreground mt-2 max-w-[260px] mx-auto leading-relaxed font-medium">
+                      Curriculum breakdown recommendations, personalized study pacing, and real-time scheduling optimizations are locked.
+                    </p>
+                  </div>
+                  <div className="pt-2 flex flex-col items-center gap-2">
+                    <button 
+                      onClick={() => navigate('/settings')}
+                      className="px-4 py-2.5 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2"
+                    >
+                      <Unlock size={12} /> Configure API Key
+                    </button>
+                    <a 
+                      href="https://aistudio.google.com/api-keys"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[8px] font-black text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
+                    >
+                      Get free key from AI Studio
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-xs uppercase tracking-wide">AI Coach Locked</h4>
-                  <p className="text-[10px] text-muted-foreground mt-1 max-w-[280px] mx-auto leading-relaxed">
-                    Please configure your Gemini API Key in settings to unlock personalized tips, suggestions, and scheduling.
-                  </p>
-                </div>
-                <button 
-                  onClick={() => navigate('/settings')}
-                  className="px-4 py-2 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-all cursor-pointer"
-                >
-                  Configure Key
-                </button>
               </div>
             ) : isLoadingTip ? (
               <div className="flex-1 flex flex-col items-center justify-center gap-2">

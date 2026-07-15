@@ -352,18 +352,24 @@ export default function DependencyGraph() {
             disabled={!hasApiKey || isGenerating || isLocked}
             title={!hasApiKey ? "AI Analyze Dependencies (Locked - Configure API Key in Settings)" : "AI Analyze Dependencies"}
             className={cn(
-              "w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-lg",
+              "h-10 px-4 flex items-center justify-center gap-2 rounded-xl transition-all shadow-lg font-bold text-xs uppercase tracking-wider",
               !hasApiKey 
-                ? "bg-muted text-muted-foreground/40 cursor-not-allowed border border-border" 
+                ? "bg-muted text-muted-foreground/50 cursor-not-allowed border border-border" 
                 : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20 disabled:opacity-30"
             )}
           >
             {isGenerating ? (
-              <Loader2 className="animate-spin" size={18} />
+              <Loader2 className="animate-spin" size={14} />
             ) : !hasApiKey ? (
-              <Lock size={18} />
+              <>
+                <Lock size={14} className="text-warning animate-pulse" />
+                <span>AI Analyze (Locked)</span>
+              </>
             ) : (
-              <Zap size={18} fill="currentColor" />
+              <>
+                <Zap size={14} fill="currentColor" />
+                <span>AI Analyze</span>
+              </>
             )}
           </button>
           

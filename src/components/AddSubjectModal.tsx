@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Plus, Trash2, Calendar, Clock, Target, BookOpen, Upload, FileText, Loader2 as LoaderIcon, AlertCircle, Brain, Check, Link as LinkIcon, Search as SearchIcon } from 'lucide-react';
+import { X, Plus, Trash2, Calendar, Clock, Target, BookOpen, Upload, FileText, Loader2 as LoaderIcon, AlertCircle, Brain, Check, Link as LinkIcon, Search as SearchIcon, Lock, Unlock } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { db, handleFirestoreError, OperationType } from '@/firebase';
 import { collection, doc, setDoc, writeBatch, updateDoc, getDocs, query, orderBy } from 'firebase/firestore';
@@ -447,24 +447,29 @@ export default function AddSubjectModal({ isOpen, onClose, subjectId }: AddSubje
               {/* Syllabus Upload */}
               <div className="p-5 sm:p-6 bg-primary/5 border border-primary/20 rounded-2xl relative overflow-hidden">
                 {!hasApiKey && (
-                  <div className="absolute inset-0 bg-background/90 backdrop-blur-sm z-30 flex flex-col items-center justify-center text-center p-4">
-                    <div className="flex items-center gap-2 text-warning mb-1.5">
-                      <AlertCircle size={18} />
-                      <span className="text-xs font-black uppercase tracking-wider">AI Import Locked</span>
+                  <div className="absolute inset-0 bg-card/95 backdrop-blur-[3px] z-30 flex flex-col items-center justify-center text-center p-4 border border-border/30 rounded-2xl">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-warning/5 opacity-55" />
+                    <div className="relative z-10 space-y-3">
+                      <div className="w-10 h-10 rounded-2xl bg-warning/10 border border-warning/20 flex items-center justify-center mx-auto shadow-lg shadow-warning/5">
+                        <Lock className="text-warning animate-pulse" size={18} />
+                      </div>
+                      <div>
+                        <span className="text-xs font-black uppercase tracking-widest text-foreground block">AI Syllabus Import (Locked)</span>
+                        <p className="text-[10px] text-muted-foreground mt-2 max-w-[280px] mx-auto leading-relaxed font-medium">
+                          Automated topic parsing and time estimation require a Gemini API Key to run.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          navigate('/settings');
+                        }}
+                        className="px-4 py-2.5 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-[0.25em] rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2 justify-center mx-auto"
+                      >
+                        <Unlock size={12} /> Configure API Key
+                      </button>
                     </div>
-                    <p className="text-[10px] text-muted-foreground max-w-sm mb-3">
-                      Please enter your Gemini API Key in Settings to unlock automated syllabus parsing and AI estimations.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onClose();
-                        navigate('/settings');
-                      }}
-                      className="px-4 py-2 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/25"
-                    >
-                      Configure Key
-                    </button>
                   </div>
                 )}
                 <div className="flex flex-col md:flex-row lg:items-center justify-between gap-4">

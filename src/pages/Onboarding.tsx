@@ -322,44 +322,51 @@ export default function Onboarding() {
           {step === 2 && (
             <div className="glass p-6 sm:p-10 text-center relative overflow-hidden">
               {!hasApiKey && (
-                <div className="absolute inset-0 bg-background/95 backdrop-blur-sm z-30 flex flex-col items-center justify-center text-center p-6 sm:p-10">
-                  <div className="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mb-6 border border-warning/25">
-                    <Lock className="text-warning" size={28} />
+                <div className="absolute inset-0 bg-card/98 backdrop-blur-md z-30 flex flex-col items-center justify-center text-center p-6 sm:p-10 border border-border/30 rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-warning/5 opacity-55" />
+                  <div className="relative z-10 w-full max-w-md mx-auto space-y-6">
+                    <div className="w-16 h-16 bg-warning/10 rounded-2xl flex items-center justify-center mb-2 border border-warning/20 mx-auto shadow-lg shadow-warning/5 animate-pulse">
+                      <Lock className="text-warning" size={28} />
+                    </div>
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-foreground">AI Features Locked</h2>
+                      <p className="text-xs text-muted-foreground mt-2 max-w-sm mx-auto leading-relaxed font-medium">
+                        Syllabus parsing, automated topic extraction, and study estimation require a Gemini API Key. Provide yours below to unlock.
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full shadow-sm rounded-2xl p-1 bg-accent/40 border border-border/40">
+                      <input
+                        type="password"
+                        placeholder="Enter your Gemini API key (AIzaSy...)"
+                        id="onboarding-api-key-input"
+                        className="flex-1 bg-transparent px-4 py-3 text-xs focus:outline-none text-foreground placeholder:text-muted-foreground/40 font-mono animate-pulse"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById('onboarding-api-key-input') as HTMLInputElement;
+                          if (input && input.value.trim()) {
+                            localStorage.setItem('gemini_api_key', input.value.trim());
+                            // force component re-render by updating profile state
+                            setProfile(prev => ({ ...prev }));
+                          }
+                        }}
+                        className="btn-primary py-3 px-6 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center justify-center gap-1.5 whitespace-nowrap"
+                      >
+                        <Unlock size={12} /> Unlock AI
+                      </button>
+                    </div>
+                    <div className="flex justify-center">
+                      <a 
+                        href="https://aistudio.google.com/api-keys" 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="text-[9px] font-black text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors flex items-center gap-1.5"
+                      >
+                        Get free API key from Google AI Studio
+                      </a>
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-bold mb-2">AI Features Locked</h2>
-                  <p className="text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed">
-                    Syllabus parsing and automated topic extraction require a Gemini API Key. Please provide yours below to continue onboarding.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md mb-4">
-                    <input
-                      type="password"
-                      placeholder="Enter your Gemini API key (AIzaSy...)"
-                      id="onboarding-api-key-input"
-                      className="flex-1 bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/30 shadow-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const input = document.getElementById('onboarding-api-key-input') as HTMLInputElement;
-                        if (input && input.value.trim()) {
-                          localStorage.setItem('gemini_api_key', input.value.trim());
-                          // force component re-render by updating profile state
-                          setProfile(prev => ({ ...prev }));
-                        }
-                      }}
-                      className="btn-primary py-3 px-6 text-xs font-black uppercase tracking-widest rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/25"
-                    >
-                      Unlock AI
-                    </button>
-                  </div>
-                  <a 
-                    href="https://aistudio.google.com/api-keys" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 flex items-center gap-1.5 cursor-pointer"
-                  >
-                    Get free API key
-                  </a>
                 </div>
               )}
               {showManualInput ? (
