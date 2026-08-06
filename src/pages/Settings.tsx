@@ -22,9 +22,10 @@ import {
   Linkedin,
   Instagram,
   Eye,
-  EyeOff
+  EyeOff,
+  Key
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/context/AppContext';
 import { auth, db, handleFirestoreError, OperationType } from '@/firebase';
@@ -32,12 +33,34 @@ import { signOut } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { encryptKey, decryptKey } from '@/services/geminiService';
 
-type SettingsTab = 'profile' | 'security' | 'preferences' | 'support';
+type SettingsTab = 'profile' | 'credentials' | 'preferences' | 'support';
 
 export default function Settings() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { state, updateState, setTheme, setAccentColor } = useApp();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    if (tabParam && ['profile', 'credentials', 'preferences', 'support'].includes(tabParam)) {
+      return tabParam as SettingsTab;
+    }
+    const stateTab = location.state?.activeTab;
+    if (stateTab && ['profile', 'credentials', 'preferences', 'support'].includes(stateTab)) {
+      return stateTab as SettingsTab;
+    }
+    return 'profile';
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    if (tabParam && ['profile', 'credentials', 'preferences', 'support'].includes(tabParam)) {
+      setActiveTab(tabParam as SettingsTab);
+    }
+  }, [location.search]);
+
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [geminiApiKey, setGeminiApiKey] = useState(() => {
@@ -205,7 +228,7 @@ export default function Settings() {
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: <User size={18} /> },
-    { id: 'security', label: 'Security', icon: <Shield size={18} /> },
+    { id: 'credentials', label: 'Credentials', icon: <Key size={18} /> },
     { id: 'preferences', label: 'Preferences', icon: <Moon size={18} /> },
     { id: 'support', label: 'Support', icon: <Mail size={18} /> },
   ];
@@ -225,7 +248,10 @@ export default function Settings() {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as SettingsTab)}
+                onClick={() => {
+                  setActiveTab(tab.id as SettingsTab);
+                  navigate(`/settings?tab=${tab.id}`, { replace: true });
+                }}
                 className={cn(
                   "flex items-center gap-3 px-6 py-4 rounded-2xl transition-all font-black uppercase tracking-widest text-[10px] whitespace-nowrap min-w-max lg:min-w-0 flex-1 lg:flex-none border",
                   activeTab === tab.id 
@@ -370,11 +396,11 @@ export default function Settings() {
                   </div>
                 )}
 
-                {activeTab === 'security' && (
+                {activeTab === 'credentials' && (
                   <div className="space-y-10">
                     <div>
-                      <h2 className="text-2xl sm:text-3xl font-black mb-2 uppercase tracking-tight">Security Matrix</h2>
-                      <p className="text-muted-foreground text-sm font-medium">Protect the integrity of your neural data.</p>
+                      <h2 className="text-2xl sm:text-3xl font-black mb-2 uppercase tracking-tight">Credentials Hub</h2>
+                      <p className="text-muted-foreground text-sm font-medium">Manage your security passwords and AI API configurations.</p>
                     </div>
 
                     <div className="space-y-8">
@@ -402,6 +428,71 @@ export default function Settings() {
                           <input type="password" placeholder="New Secret" className="w-full bg-input/50 border border-border rounded-xl px-5 py-3.5 focus:outline-none focus:border-primary transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-sm" />
                         </div>
                         <button className="btn-primary text-[10px] font-black uppercase tracking-widest py-3.5 px-10 shadow-lg shadow-primary/20">Inject New Sequence</button>
+                      </div>
+
+                      <div className="space-y-6 pt-8 border-t border-border/50">
+                        <div className="flex items-center justify-between px-2">
+                          <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">AI Configurations</h3>
+                          <a 
+                            href="https://aistudio.google.com/api-keys" 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="flex items-center gap-1.5 text-[9px] font-black text-primary uppercase tracking-widest hover:underline bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20 cursor-pointer"
+                          >
+                            <ExternalLink size={10} />
+                            Get free API key
+                          </a>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="relative group/key">
+                            <input 
+                              type={showKey || isHovered ? "text" : "password"} 
+                              value={geminiApiKey} 
+                              onChange={(e) => setGeminiApiKey(e.target.value)}
+                              onMouseEnter={() => setIsHovered(true)}
+                              onMouseLeave={() => setIsHovered(false)}
+                              className="w-full bg-input/50 border border-border rounded-xl pl-5 pr-12 py-3.5 focus:outline-none focus:border-primary transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-sm" 
+                              placeholder="Enter your Gemini API key (starts with AIzaSy...)"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowKey(!showKey)}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              {showKey || isHovered ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                          </div>
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-2">
+                            <p className="text-[9px] text-muted-foreground/80 font-medium leading-relaxed max-w-[250px] sm:max-w-xs">
+                              * Note: Stored securely in your browser's local storage and encrypted using client-side obfuscation. It never leaves your device.
+                            </p>
+                            <div className="flex items-center gap-2 self-end sm:self-center">
+                              {geminiApiKey && (
+                                <button
+                                  type="button"
+                                  onClick={handleRemoveApiKey}
+                                  className="px-4 py-2 bg-destructive/10 border border-destructive/20 text-destructive text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-destructive/20 transition-all cursor-pointer flex items-center gap-2 justify-center whitespace-nowrap"
+                                >
+                                  {isKeyRemoved ? "Removed!" : "Remove Key"}
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={handleSaveApiKey}
+                                disabled={savingKey}
+                                className="px-4 py-2 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-widest rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2 justify-center whitespace-nowrap"
+                              >
+                                {savingKey ? (
+                                  <Loader2 className="animate-spin" size={10} />
+                                ) : isKeySaved ? (
+                                  <><Check size={10} /> Saved!</>
+                                ) : (
+                                  "Save Key"
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -533,70 +624,6 @@ export default function Settings() {
                         </div>
                       </div>
 
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-between px-2">
-                          <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">AI Configurations</h3>
-                          <a 
-                            href="https://aistudio.google.com/api-keys" 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="flex items-center gap-1.5 text-[9px] font-black text-primary uppercase tracking-widest hover:underline bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20 cursor-pointer"
-                          >
-                            <ExternalLink size={10} />
-                            Get free API key
-                          </a>
-                        </div>
-                        <div className="space-y-3">
-                          <div className="relative group/key">
-                            <input 
-                              type={showKey || isHovered ? "text" : "password"} 
-                              value={geminiApiKey} 
-                              onChange={(e) => setGeminiApiKey(e.target.value)}
-                              onMouseEnter={() => setIsHovered(true)}
-                              onMouseLeave={() => setIsHovered(false)}
-                              className="w-full bg-input/50 border border-border rounded-xl pl-5 pr-12 py-3.5 focus:outline-none focus:border-primary transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-sm" 
-                              placeholder="Enter your Gemini API key (starts with AIzaSy...)"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowKey(!showKey)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                            >
-                              {showKey || isHovered ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
-                          </div>
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-2">
-                            <p className="text-[9px] text-muted-foreground/80 font-medium leading-relaxed max-w-[250px] sm:max-w-xs">
-                              * Note: Stored securely in your browser's local storage and encrypted using client-side obfuscation. It never leaves your device.
-                            </p>
-                            <div className="flex items-center gap-2 self-end sm:self-center">
-                              {geminiApiKey && (
-                                <button
-                                  type="button"
-                                  onClick={handleRemoveApiKey}
-                                  className="px-4 py-2 bg-destructive/10 border border-destructive/20 text-destructive text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-destructive/20 transition-all cursor-pointer flex items-center gap-2 justify-center whitespace-nowrap"
-                                >
-                                  {isKeyRemoved ? "Removed!" : "Remove Key"}
-                                </button>
-                              )}
-                              <button
-                                type="button"
-                                onClick={handleSaveApiKey}
-                                disabled={savingKey}
-                                className="px-4 py-2 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-widest rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2 justify-center whitespace-nowrap"
-                              >
-                                {savingKey ? (
-                                  <Loader2 className="animate-spin" size={10} />
-                                ) : isKeySaved ? (
-                                  <><Check size={10} /> Saved!</>
-                                ) : (
-                                  "Save Key"
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 )}

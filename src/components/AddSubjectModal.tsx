@@ -447,28 +447,28 @@ export default function AddSubjectModal({ isOpen, onClose, subjectId }: AddSubje
               {/* Syllabus Upload */}
               <div className="p-5 sm:p-6 bg-primary/5 border border-primary/20 rounded-2xl relative overflow-hidden">
                 {!hasApiKey && (
-                  <div className="absolute inset-0 bg-background/30 dark:bg-black/35 backdrop-blur-[5px] z-30 flex flex-col items-center justify-center text-center p-4 rounded-2xl border border-dashed border-primary/20">
-                    <div className="relative z-10 space-y-3 p-5 glass max-w-sm rounded-2xl border border-white/10 dark:border-white/5 shadow-2xl">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(30,156,240,0.15)] animate-pulse">
-                        <Lock className="text-primary" size={18} />
+                  <div className="absolute inset-0 bg-background/35 dark:bg-black/45 backdrop-blur-[6px] z-30 flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl border border-dashed border-primary/20 animate-fade-in">
+                    {/* Left: Lock info */}
+                    <div className="flex items-center gap-4 text-left">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 animate-pulse">
+                        <Lock size={20} />
                       </div>
                       <div>
-                        <span className="text-xs font-black uppercase tracking-widest text-foreground block">AI Syllabus Import (Locked)</span>
-                        <p className="text-[10px] text-muted-foreground mt-2 max-w-[280px] mx-auto leading-relaxed font-medium">
-                          Automated topic parsing and time estimation require a Gemini API Key to run.
-                        </p>
+                        <h4 className="font-bold text-sm sm:text-base text-foreground leading-tight">AI Syllabus Import (Locked)</h4>
+                        <p className="text-xs text-muted-foreground leading-tight mt-1">Syllabus parsing and estimation require a Gemini API Key.</p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onClose();
-                          navigate('/settings');
-                        }}
-                        className="px-4 py-2.5 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-[0.25em] rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2 justify-center mx-auto"
-                      >
-                        <Unlock size={12} /> Configure API Key
-                      </button>
                     </div>
+                    {/* Right: Configure Key Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        navigate('/settings?tab=credentials');
+                      }}
+                      className="px-4 py-2.5 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2 justify-center whitespace-nowrap md:self-center self-start"
+                    >
+                      <Unlock size={12} /> Configure Key
+                    </button>
                   </div>
                 )}
                 <div className={cn(

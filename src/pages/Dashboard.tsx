@@ -810,7 +810,7 @@ export default function Dashboard() {
                     </div>
                     <div className="pt-1 flex flex-col items-center gap-1.5">
                       <button 
-                        onClick={() => navigate('/settings')}
+                        onClick={() => navigate('/settings?tab=credentials')}
                         className="px-3 py-2 bg-primary text-primary-foreground text-[8px] font-black uppercase tracking-[0.2em] rounded-lg hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-1.5"
                       >
                         <Unlock size={10} /> Configure Key
