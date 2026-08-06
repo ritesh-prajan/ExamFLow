@@ -30,6 +30,7 @@ import { useApp } from '@/context/AppContext';
 import { auth, db, handleFirestoreError, OperationType } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
+import { encryptKey, decryptKey } from '@/services/geminiService';
 
 type SettingsTab = 'profile' | 'security' | 'preferences' | 'support';
 
@@ -40,10 +41,29 @@ export default function Settings() {
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [geminiApiKey, setGeminiApiKey] = useState(() => {
-    return typeof localStorage !== 'undefined' ? localStorage.getItem('gemini_api_key') || '' : '';
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('gemini_api_key');
+      return stored ? decryptKey(stored) : '';
+    }
+    return '';
   });
   const [showKey, setShowKey] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isKeySaved, setIsKeySaved] = useState(false);
+  const [savingKey, setSavingKey] = useState(false);
+
+  const handleSaveApiKey = () => {
+    if (typeof localStorage !== 'undefined') {
+      setSavingKey(true);
+      const encrypted = encryptKey(geminiApiKey.trim());
+      localStorage.setItem('gemini_api_key', encrypted);
+      setTimeout(() => {
+        setSavingKey(false);
+        setIsKeySaved(true);
+        setTimeout(() => setIsKeySaved(false), 2000);
+      }, 500);
+    }
+  };
   
   const presetColors = [
     { name: 'Blue', value: '#1e9df1' },
@@ -144,7 +164,7 @@ export default function Settings() {
       
       // Save Gemini API key to local storage
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('gemini_api_key', geminiApiKey.trim());
+        localStorage.setItem('gemini_api_key', encryptKey(geminiApiKey.trim()));
       }
 
       setIsSaved(true);
@@ -508,27 +528,45 @@ export default function Settings() {
                             Get free API key
                           </a>
                         </div>
-                        <div className="relative group/key">
-                          <input 
-                            type={showKey || isHovered ? "text" : "password"} 
-                            value={geminiApiKey} 
-                            onChange={(e) => setGeminiApiKey(e.target.value)}
-                            onMouseEnter={() => setIsHovered(true)}
-                            onMouseLeave={() => setIsHovered(false)}
-                            className="w-full bg-input/50 border border-border rounded-xl pl-5 pr-12 py-3.5 focus:outline-none focus:border-primary transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-sm" 
-                            placeholder="Enter your Gemini API key (starts with AIzaSy...)"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowKey(!showKey)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            {showKey || isHovered ? <EyeOff size={18} /> : <Eye size={18} />}
-                          </button>
+                        <div className="space-y-3">
+                          <div className="relative group/key">
+                            <input 
+                              type={showKey || isHovered ? "text" : "password"} 
+                              value={geminiApiKey} 
+                              onChange={(e) => setGeminiApiKey(e.target.value)}
+                              onMouseEnter={() => setIsHovered(true)}
+                              onMouseLeave={() => setIsHovered(false)}
+                              className="w-full bg-input/50 border border-border rounded-xl pl-5 pr-12 py-3.5 focus:outline-none focus:border-primary transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-sm" 
+                              placeholder="Enter your Gemini API key (starts with AIzaSy...)"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowKey(!showKey)}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              {showKey || isHovered ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                          </div>
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-2">
+                            <p className="text-[9px] text-muted-foreground/80 font-medium leading-relaxed max-w-sm">
+                              * Note: Stored securely in your browser's local storage and encrypted using client-side obfuscation. It never leaves your device.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={handleSaveApiKey}
+                              disabled={savingKey}
+                              className="px-4 py-2 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-widest rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2 justify-center whitespace-nowrap self-end sm:self-center"
+                            >
+                              {savingKey ? (
+                                <Loader2 className="animate-spin" size={10} />
+                              ) : isKeySaved ? (
+                                <><Check size={10} /> Saved!</>
+                              ) : (
+                                "Save Key"
+                              )}
+                            </button>
+                          </div>
                         </div>
-                        <p className="text-[9px] text-muted-foreground px-2 leading-relaxed">
-                          Your key is stored safely in your local browser storage and is used directly for Gemini API requests (e.g. syllabus parsing and time estimates).
-                        </p>
                       </div>
                     </div>
                   </div>

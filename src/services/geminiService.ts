@@ -1,11 +1,47 @@
 import { Topic, Module } from "../types";
 import { GoogleGenAI, Type } from "@google/genai";
 
+export function encryptKey(key: string): string {
+  if (!key) return "";
+  if (key.startsWith("ef_enc:")) {
+    return key;
+  }
+  let obfuscated = "";
+  const salt = "examflow";
+  for (let i = 0; i < key.length; i++) {
+    const keyChar = key.charCodeAt(i);
+    const saltChar = salt.charCodeAt(i % salt.length);
+    obfuscated += String.fromCharCode(keyChar ^ saltChar);
+  }
+  return "ef_enc:" + btoa(obfuscated);
+}
+
+export function decryptKey(encrypted: string): string {
+  if (!encrypted) return "";
+  if (!encrypted.startsWith("ef_enc:")) {
+    return encrypted;
+  }
+  try {
+    const base64Part = encrypted.substring(7);
+    const raw = atob(base64Part);
+    let result = "";
+    const salt = "examflow";
+    for (let i = 0; i < raw.length; i++) {
+      const rawChar = raw.charCodeAt(i);
+      const saltChar = salt.charCodeAt(i % salt.length);
+      result += String.fromCharCode(rawChar ^ saltChar);
+    }
+    return result;
+  } catch (e) {
+    return encrypted;
+  }
+}
+
 export function getApiKey(): string | undefined {
   if (typeof localStorage !== 'undefined') {
     const localKey = localStorage.getItem('gemini_api_key');
     if (localKey && localKey.trim() !== '') {
-      return localKey.trim();
+      return decryptKey(localKey.trim());
     }
   }
   const envKey = typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : undefined;

@@ -784,33 +784,46 @@ export default function Dashboard() {
             </div>
             
             {!hasApiKey ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden rounded-2xl bg-card/45 border border-border/40 shadow-inner mt-2">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-warning/5 opacity-50" />
-                <div className="relative z-10 space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-warning/10 border border-warning/20 flex items-center justify-center mx-auto shadow-lg shadow-warning/5 animate-pulse">
-                    <Lock className="text-warning" size={20} />
+              <div className="relative mt-2 flex-1 flex flex-col justify-between">
+                {/* Mock tip content that is blurred */}
+                <div className="filter blur-[4px] opacity-25 select-none pointer-events-none space-y-3 flex-1 flex flex-col justify-between min-h-[120px]">
+                  <p className="text-foreground/80 leading-relaxed font-medium italic text-xs">
+                    "Focus on Mathematics: Unit 3 has a high weightage in past exams and your current topic confidence is low. Prioritize active recall practice today to optimize your pacing."
+                  </p>
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="text-[9px] font-bold text-primary uppercase tracking-widest">Recommendation: Revise Unit 3 Topics</span>
+                    <span className="text-muted-foreground text-[9px] font-bold uppercase tracking-widest">Dismiss</span>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase tracking-widest text-foreground">AI Study Coach (Locked)</h4>
-                    <p className="text-[10px] text-muted-foreground mt-2 max-w-[260px] mx-auto leading-relaxed font-medium">
-                      Curriculum breakdown recommendations, personalized study pacing, and real-time scheduling optimizations are locked.
-                    </p>
-                  </div>
-                  <div className="pt-2 flex flex-col items-center gap-2">
-                    <button 
-                      onClick={() => navigate('/settings')}
-                      className="px-4 py-2.5 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2"
-                    >
-                      <Unlock size={12} /> Configure API Key
-                    </button>
-                    <a 
-                      href="https://aistudio.google.com/api-keys"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[8px] font-black text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
-                    >
-                      Get free key from AI Studio
-                    </a>
+                </div>
+
+                {/* Gorgeous Glass Overlay */}
+                <div className="absolute inset-0 bg-background/20 dark:bg-black/30 backdrop-blur-[3px] z-20 flex flex-col items-center justify-center text-center p-3 rounded-2xl border border-dashed border-primary/20">
+                  <div className="relative z-30 space-y-2.5 p-4 glass max-w-[280px] rounded-xl border border-white/10 dark:border-white/5 shadow-xl">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 flex items-center justify-center mx-auto shadow-[0_0_15px_rgba(30,156,240,0.15)] animate-pulse">
+                      <Lock className="text-primary" size={14} />
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-foreground">AI Coach (Locked)</h4>
+                      <p className="text-[9px] text-muted-foreground mt-1 leading-relaxed font-medium">
+                        Personalized study recommendations and pacing optimizations are locked.
+                      </p>
+                    </div>
+                    <div className="pt-1 flex flex-col items-center gap-1.5">
+                      <button 
+                        onClick={() => navigate('/settings')}
+                        className="px-3 py-2 bg-primary text-primary-foreground text-[8px] font-black uppercase tracking-[0.2em] rounded-lg hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-1.5"
+                      >
+                        <Unlock size={10} /> Configure Key
+                      </button>
+                      <a 
+                        href="https://aistudio.google.com/api-keys"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[7px] font-black text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
+                      >
+                        Get free key from AI Studio
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>

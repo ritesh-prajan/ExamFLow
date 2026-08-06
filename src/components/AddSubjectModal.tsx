@@ -447,11 +447,10 @@ export default function AddSubjectModal({ isOpen, onClose, subjectId }: AddSubje
               {/* Syllabus Upload */}
               <div className="p-5 sm:p-6 bg-primary/5 border border-primary/20 rounded-2xl relative overflow-hidden">
                 {!hasApiKey && (
-                  <div className="absolute inset-0 bg-card/95 backdrop-blur-[3px] z-30 flex flex-col items-center justify-center text-center p-4 border border-border/30 rounded-2xl">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-warning/5 opacity-55" />
-                    <div className="relative z-10 space-y-3">
-                      <div className="w-10 h-10 rounded-2xl bg-warning/10 border border-warning/20 flex items-center justify-center mx-auto shadow-lg shadow-warning/5">
-                        <Lock className="text-warning animate-pulse" size={18} />
+                  <div className="absolute inset-0 bg-background/30 dark:bg-black/35 backdrop-blur-[5px] z-30 flex flex-col items-center justify-center text-center p-4 rounded-2xl border border-dashed border-primary/20">
+                    <div className="relative z-10 space-y-3 p-5 glass max-w-sm rounded-2xl border border-white/10 dark:border-white/5 shadow-2xl">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(30,156,240,0.15)] animate-pulse">
+                        <Lock className="text-primary" size={18} />
                       </div>
                       <div>
                         <span className="text-xs font-black uppercase tracking-widest text-foreground block">AI Syllabus Import (Locked)</span>
@@ -472,7 +471,10 @@ export default function AddSubjectModal({ isOpen, onClose, subjectId }: AddSubje
                     </div>
                   </div>
                 )}
-                <div className="flex flex-col md:flex-row lg:items-center justify-between gap-4">
+                <div className={cn(
+                  "flex flex-col md:flex-row lg:items-center justify-between gap-4",
+                  !hasApiKey && "filter blur-[3px] opacity-40 pointer-events-none select-none"
+                )}>
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
                       <FileText size={20} className="sm:w-6 sm:h-6" />
@@ -656,14 +658,14 @@ export default function AddSubjectModal({ isOpen, onClose, subjectId }: AddSubje
                       onClick={hasApiKey ? handleAIEstimate : undefined}
                       disabled={!hasApiKey || isEstimating || portions.length === 0}
                       className={cn(
-                        "flex items-center gap-2 text-[10px] sm:text-sm font-bold transition-colors uppercase tracking-widest",
+                        "flex items-center gap-2 text-[10px] sm:text-xs font-bold transition-all uppercase tracking-widest px-3 py-1.5 rounded-xl border",
                         !hasApiKey 
-                          ? "text-muted-foreground/40 cursor-not-allowed" 
-                          : "text-warning hover:text-warning/80 disabled:opacity-50"
+                          ? "bg-warning/5 border-warning/10 text-warning/40 cursor-not-allowed" 
+                          : "border-warning/30 bg-warning/10 text-warning hover:bg-warning/20 disabled:opacity-50"
                       )}
                       title={!hasApiKey ? "Gemini API key is required" : "Estimate study durations via AI"}
                     >
-                      {isEstimating ? <LoaderIcon className="animate-spin" size={14} /> : <Brain size={16} />}
+                      {isEstimating ? <LoaderIcon className="animate-spin" size={14} /> : <Brain size={14} />}
                       AI Estimate {!hasApiKey && "🔒"}
                     </button>
                     <button

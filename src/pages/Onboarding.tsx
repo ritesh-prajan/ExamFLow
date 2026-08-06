@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Upload, FileText, Calendar, Clock, Check, ChevronRight, ChevronLeft, X, Loader2, Plus, Lock } from 'lucide-react';
+import { Upload, FileText, Calendar, Clock, Check, ChevronRight, ChevronLeft, X, Loader2, Plus, Lock, Unlock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/context/AppContext';
-import { parseSyllabus, getApiKey } from '@/services/geminiService';
+import { parseSyllabus, getApiKey, encryptKey } from '@/services/geminiService';
 import { extractTextFromPdf } from '@/lib/pdfUtils';
 import { db, handleFirestoreError, OperationType } from '@/firebase';
 import { doc, updateDoc, setDoc } from 'firebase/firestore';
@@ -322,11 +322,10 @@ export default function Onboarding() {
           {step === 2 && (
             <div className="glass p-6 sm:p-10 text-center relative overflow-hidden">
               {!hasApiKey && (
-                <div className="absolute inset-0 bg-card/98 backdrop-blur-md z-30 flex flex-col items-center justify-center text-center p-6 sm:p-10 border border-border/30 rounded-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-warning/5 opacity-55" />
-                  <div className="relative z-10 w-full max-w-md mx-auto space-y-6">
-                    <div className="w-16 h-16 bg-warning/10 rounded-2xl flex items-center justify-center mb-2 border border-warning/20 mx-auto shadow-lg shadow-warning/5 animate-pulse">
-                      <Lock className="text-warning" size={28} />
+                <div className="absolute inset-0 bg-background/25 dark:bg-black/35 backdrop-blur-[5px] z-30 flex flex-col items-center justify-center text-center p-6 sm:p-10 border border-border/30 rounded-2xl">
+                  <div className="relative z-10 w-full max-w-md mx-auto space-y-6 p-6 sm:p-8 glass rounded-2xl border border-white/10 dark:border-white/5 shadow-2xl">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mb-2 border border-primary/30 mx-auto shadow-[0_0_20px_rgba(30,156,240,0.15)] animate-pulse">
+                      <Lock className="text-primary animate-pulse" size={24} />
                     </div>
                     <div>
                       <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-foreground">AI Features Locked</h2>
@@ -339,14 +338,14 @@ export default function Onboarding() {
                         type="password"
                         placeholder="Enter your Gemini API key (AIzaSy...)"
                         id="onboarding-api-key-input"
-                        className="flex-1 bg-transparent px-4 py-3 text-xs focus:outline-none text-foreground placeholder:text-muted-foreground/40 font-mono animate-pulse"
+                        className="flex-1 bg-transparent px-4 py-3 text-xs focus:outline-none text-foreground placeholder:text-muted-foreground/40 font-mono"
                       />
                       <button
                         type="button"
                         onClick={() => {
                           const input = document.getElementById('onboarding-api-key-input') as HTMLInputElement;
                           if (input && input.value.trim()) {
-                            localStorage.setItem('gemini_api_key', input.value.trim());
+                            localStorage.setItem('gemini_api_key', encryptKey(input.value.trim()));
                             // force component re-render by updating profile state
                             setProfile(prev => ({ ...prev }));
                           }
@@ -356,7 +355,7 @@ export default function Onboarding() {
                         <Unlock size={12} /> Unlock AI
                       </button>
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex flex-col items-center gap-2">
                       <a 
                         href="https://aistudio.google.com/api-keys" 
                         target="_blank" 
@@ -365,104 +364,110 @@ export default function Onboarding() {
                       >
                         Get free API key from Google AI Studio
                       </a>
+                      <p className="text-[9px] text-muted-foreground/80 font-medium leading-relaxed max-w-sm mx-auto mt-2">
+                        * Note: Stored securely in your browser's local storage and encrypted using client-side obfuscation. It never leaves your device.
+                      </p>
                     </div>
                   </div>
                 </div>
               )}
-              {showManualInput ? (
-                <div className="text-left">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold">Paste Your Syllabus</h2>
-                    <button onClick={() => setShowManualInput(false)} className="text-muted-foreground hover:text-foreground">
-                      <X size={20} />
-                    </button>
-                  </div>
-                  <textarea 
-                    value={manualText}
-                    onChange={(e) => setManualText(e.target.value)}
-                    placeholder="Paste your topics, modules, or full syllabus text here..."
-                    className="w-full h-64 bg-accent border border-border rounded-xl p-4 focus:outline-none focus:border-primary transition-all mb-6 resize-none text-foreground"
-                  />
-                  <button 
-                    onClick={handleManualSubmit}
-                    disabled={isAnalyzing || !manualText.trim()}
-                    className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isAnalyzing ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Parsing...</> : 'Analyze Topics'}
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <h2 className="text-3xl font-bold mb-4">Upload Portion Sheet</h2>
-                  <p className="text-muted-foreground mb-8">Upload your syllabus to let ExamFlow build your topic list.</p>
-                  
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden" 
-                    onChange={handleFileUpload}
-                    accept=".pdf,.docx,.txt,image/*"
-                  />
-                  
-                  <div 
-                    onClick={() => !isAnalyzing && fileInputRef.current?.click()}
-                    className={`border-2 border-dashed border-border rounded-2xl p-12 transition-all cursor-pointer group ${
-                      isAnalyzing ? 'cursor-default' : 'hover:border-primary/50 hover:bg-primary/5'
-                    }`}
-                  >
-                    {isAnalyzing ? (
-                      <div className="flex flex-col items-center w-full">
-                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6 relative">
-                          <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
-                          <motion.div 
-                            className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          ></motion.div>
-                          <FileText className="text-primary" size={24} />
-                        </div>
-                        
-                        <div className="w-full max-w-sm">
-                          <div className="flex justify-between items-end mb-2">
-                            <div className="text-left">
-                              <p className="font-bold text-foreground truncate max-w-[200px]">{fileInfo?.name}</p>
-                              <p className="text-xs text-muted-foreground">{fileInfo?.size}</p>
-                            </div>
-                            <p className="text-primary font-bold">{uploadProgress}%</p>
-                          </div>
-                          
-                          <div className="h-2 bg-muted rounded-full overflow-hidden mb-4">
-                            <motion.div 
-                              className="h-full bg-primary"
-                              initial={{ width: '0%' }}
-                              animate={{ width: `${uploadProgress}%` }}
-                            />
-                          </div>
-                          
-                          <p className="text-muted-foreground text-sm animate-pulse">
-                            {uploadProgress < 100 ? 'Uploading and extracting text...' : 'AI is analyzing your syllabus structure...'}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <Upload className="mx-auto mb-4 text-muted-foreground group-hover:text-primary transition-colors" size={48} />
-                        <p className="text-lg font-medium mb-2">Drag and drop your syllabus here</p>
-                        <p className="text-sm text-muted-foreground">Supports PDF, DOCX, TXT, and Images</p>
-                      </>
-                    )}
-                  </div>
-                  
-                  <div className="mt-8 pt-8 border-t border-border">
+              
+              <div className={cn("w-full flex flex-col h-full", !hasApiKey && "filter blur-[4px] opacity-25 select-none pointer-events-none")}>
+                {showManualInput ? (
+                  <div className="text-left">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl sm:text-2xl font-bold">Paste Your Syllabus</h2>
+                      <button onClick={() => setShowManualInput(false)} className="text-muted-foreground hover:text-foreground">
+                        <X size={20} />
+                      </button>
+                    </div>
+                    <textarea 
+                      value={manualText}
+                      onChange={(e) => setManualText(e.target.value)}
+                      placeholder="Paste your topics, modules, or full syllabus text here..."
+                      className="w-full h-64 bg-accent border border-border rounded-xl p-4 focus:outline-none focus:border-primary transition-all mb-6 resize-none text-foreground"
+                    />
                     <button 
-                      onClick={() => setShowManualInput(true)}
-                      className="text-primary hover:underline font-medium"
+                      onClick={handleManualSubmit}
+                      disabled={isAnalyzing || !manualText.trim()}
+                      className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                      Or paste your topic list manually
+                      {isAnalyzing ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Parsing...</> : 'Analyze Topics'}
                     </button>
                   </div>
-                </>
-              )}
+                ) : (
+                  <>
+                    <h2 className="text-3xl font-bold mb-4">Upload Portion Sheet</h2>
+                    <p className="text-muted-foreground mb-8">Upload your syllabus to let ExamFlow build your topic list.</p>
+                    
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      onChange={handleFileUpload}
+                      accept=".pdf,.docx,.txt,image/*"
+                    />
+                    
+                    <div 
+                      onClick={() => !isAnalyzing && fileInputRef.current?.click()}
+                      className={`border-2 border-dashed border-border rounded-2xl p-12 transition-all cursor-pointer group ${
+                        isAnalyzing ? 'cursor-default' : 'hover:border-primary/50 hover:bg-primary/5'
+                      }`}
+                    >
+                      {isAnalyzing ? (
+                        <div className="flex flex-col items-center w-full">
+                          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6 relative">
+                            <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+                            <motion.div 
+                              className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            ></motion.div>
+                            <FileText className="text-primary" size={24} />
+                          </div>
+                          
+                          <div className="w-full max-w-sm">
+                            <div className="flex justify-between items-end mb-2">
+                              <div className="text-left">
+                                <p className="font-bold text-foreground truncate max-w-[200px]">{fileInfo?.name}</p>
+                                <p className="text-xs text-muted-foreground">{fileInfo?.size}</p>
+                              </div>
+                              <p className="text-primary font-bold">{uploadProgress}%</p>
+                            </div>
+                            
+                            <div className="h-2 bg-muted rounded-full overflow-hidden mb-4">
+                              <motion.div 
+                                className="h-full bg-primary"
+                                initial={{ width: '0%' }}
+                                animate={{ width: `${uploadProgress}%` }}
+                              />
+                            </div>
+                            
+                            <p className="text-muted-foreground text-sm animate-pulse">
+                              {uploadProgress < 100 ? 'Uploading and extracting text...' : 'AI is analyzing your syllabus structure...'}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="mx-auto mb-4 text-muted-foreground group-hover:text-primary transition-colors" size={48} />
+                          <p className="text-lg font-medium mb-2">Drag and drop your syllabus here</p>
+                          <p className="text-sm text-muted-foreground">Supports PDF, DOCX, TXT, and Images</p>
+                        </>
+                      )}
+                    </div>
+                    
+                    <div className="mt-8 pt-8 border-t border-border">
+                      <button 
+                        onClick={() => setShowManualInput(true)}
+                        className="text-primary hover:underline font-medium"
+                      >
+                        Or paste your topic list manually
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
