@@ -55,8 +55,12 @@ export default function Settings() {
   const handleSaveApiKey = () => {
     if (typeof localStorage !== 'undefined') {
       setSavingKey(true);
-      const encrypted = encryptKey(geminiApiKey.trim());
-      localStorage.setItem('gemini_api_key', encrypted);
+      if (geminiApiKey.trim() === '') {
+        localStorage.removeItem('gemini_api_key');
+      } else {
+        const encrypted = encryptKey(geminiApiKey.trim());
+        localStorage.setItem('gemini_api_key', encrypted);
+      }
       setTimeout(() => {
         setSavingKey(false);
         setIsKeySaved(true);
@@ -164,7 +168,11 @@ export default function Settings() {
       
       // Save Gemini API key to local storage
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('gemini_api_key', encryptKey(geminiApiKey.trim()));
+        if (geminiApiKey.trim() === '') {
+          localStorage.removeItem('gemini_api_key');
+        } else {
+          localStorage.setItem('gemini_api_key', encryptKey(geminiApiKey.trim()));
+        }
       }
 
       setIsSaved(true);
