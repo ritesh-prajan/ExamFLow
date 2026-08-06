@@ -51,6 +51,7 @@ export default function Settings() {
   const [isHovered, setIsHovered] = useState(false);
   const [isKeySaved, setIsKeySaved] = useState(false);
   const [savingKey, setSavingKey] = useState(false);
+  const [isKeyRemoved, setIsKeyRemoved] = useState(false);
 
   const handleSaveApiKey = () => {
     if (typeof localStorage !== 'undefined') {
@@ -66,6 +67,15 @@ export default function Settings() {
         setIsKeySaved(true);
         setTimeout(() => setIsKeySaved(false), 2000);
       }, 500);
+    }
+  };
+
+  const handleRemoveApiKey = () => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('gemini_api_key');
+      setGeminiApiKey('');
+      setIsKeyRemoved(true);
+      setTimeout(() => setIsKeyRemoved(false), 2000);
     }
   };
   
@@ -556,23 +566,34 @@ export default function Settings() {
                             </button>
                           </div>
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-2">
-                            <p className="text-[9px] text-muted-foreground/80 font-medium leading-relaxed max-w-sm">
+                            <p className="text-[9px] text-muted-foreground/80 font-medium leading-relaxed max-w-[250px] sm:max-w-xs">
                               * Note: Stored securely in your browser's local storage and encrypted using client-side obfuscation. It never leaves your device.
                             </p>
-                            <button
-                              type="button"
-                              onClick={handleSaveApiKey}
-                              disabled={savingKey}
-                              className="px-4 py-2 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-widest rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2 justify-center whitespace-nowrap self-end sm:self-center"
-                            >
-                              {savingKey ? (
-                                <Loader2 className="animate-spin" size={10} />
-                              ) : isKeySaved ? (
-                                <><Check size={10} /> Saved!</>
-                              ) : (
-                                "Save Key"
+                            <div className="flex items-center gap-2 self-end sm:self-center">
+                              {geminiApiKey && (
+                                <button
+                                  type="button"
+                                  onClick={handleRemoveApiKey}
+                                  className="px-4 py-2 bg-destructive/10 border border-destructive/20 text-destructive text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-destructive/20 transition-all cursor-pointer flex items-center gap-2 justify-center whitespace-nowrap"
+                                >
+                                  {isKeyRemoved ? "Removed!" : "Remove Key"}
+                                </button>
                               )}
-                            </button>
+                              <button
+                                type="button"
+                                onClick={handleSaveApiKey}
+                                disabled={savingKey}
+                                className="px-4 py-2 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-widest rounded-xl hover:opacity-90 transition-all cursor-pointer shadow-lg shadow-primary/20 flex items-center gap-2 justify-center whitespace-nowrap"
+                              >
+                                {savingKey ? (
+                                  <Loader2 className="animate-spin" size={10} />
+                                ) : isKeySaved ? (
+                                  <><Check size={10} /> Saved!</>
+                                ) : (
+                                  "Save Key"
+                                )}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
