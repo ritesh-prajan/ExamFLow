@@ -57,7 +57,7 @@ export const handler = async (event: any) => {
     }
 
     const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
-    const model = "gemini-1.5-flash";
+    const model = "gemini-2.5-flash";
 
     const prompt = `
       You are an expert academic coordinator specializing in curriculum breakdown. Your task is to perform an EXHAUSTIVE and GRANULAR analysis of the provided syllabus text.
