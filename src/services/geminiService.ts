@@ -59,6 +59,37 @@ function getAI() {
   return new GoogleGenAI({ apiKey: (apiKey || "placeholder") });
 }
 
+async function generateContentWithRetry(
+  ai: any,
+  params: { model: string; contents: any[]; config?: any },
+  maxRetries = 3,
+  initialDelayMs = 1500
+): Promise<any> {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await ai.models.generateContent(params);
+    } catch (error: any) {
+      attempt++;
+      const rawMessage = error?.message || "";
+      const isTransient = 
+        rawMessage.includes("503") || 
+        rawMessage.includes("UNAVAILABLE") || 
+        rawMessage.includes("429") || 
+        rawMessage.includes("RESOURCE_EXHAUSTED") ||
+        (error?.status && (error.status === "UNAVAILABLE" || error.status === 429 || error.status === 503));
+
+      if (isTransient && attempt <= maxRetries) {
+        const delay = initialDelayMs * Math.pow(2, attempt - 1) * (0.5 + Math.random());
+        console.warn(`Gemini API returned transient error. Retrying attempt ${attempt}/${maxRetries} in ${Math.round(delay)}ms. Error:`, rawMessage);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+}
+
 export async function parseSyllabus(text: string): Promise<{ subject: string; subjectCode: string; modules: Module[]; topics: Topic[] }> {
   try {
     console.log("Parsing syllabus via Gemini API (Frontend)...");
@@ -89,8 +120,8 @@ export async function parseSyllabus(text: string): Promise<{ subject: string; su
       ${text}
     `;
 
-    const result = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+    const result = await generateContentWithRetry(ai, {
+      model: "gemini-3.5-flash-lite",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         responseMimeType: "application/json",
@@ -174,8 +205,8 @@ export async function suggestDependencies(topics: Topic[], subjectName: string):
       Only include logical academic dependencies. Do not create circular dependencies.
     `;
 
-    const result = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+    const result = await generateContentWithRetry(ai, {
+      model: "gemini-3.5-flash-lite",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         responseMimeType: "application/json",
@@ -231,8 +262,8 @@ export async function estimateTopicDurations(topics: { name: string; module: str
       Return a list of estimated times in the same order as provided.
     `;
 
-    const result = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+    const result = await generateContentWithRetry(ai, {
+      model: "gemini-3.5-flash-lite",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         responseMimeType: "application/json",

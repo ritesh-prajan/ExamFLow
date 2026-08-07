@@ -4,6 +4,37 @@ const ipCache: Record<string, { count: number; resetTime: number }> = {};
 const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 5;
 
+async function generateContentWithRetry(
+  ai: any,
+  params: { model: string; contents: any[]; config?: any },
+  maxRetries = 3,
+  initialDelayMs = 1500
+): Promise<any> {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await ai.models.generateContent(params);
+    } catch (error: any) {
+      attempt++;
+      const rawMessage = error?.message || "";
+      const isTransient = 
+        rawMessage.includes("503") || 
+        rawMessage.includes("UNAVAILABLE") || 
+        rawMessage.includes("429") || 
+        rawMessage.includes("RESOURCE_EXHAUSTED") ||
+        (error?.status && (error.status === "UNAVAILABLE" || error.status === 429 || error.status === 503));
+
+      if (isTransient && attempt <= maxRetries) {
+        const delay = initialDelayMs * Math.pow(2, attempt - 1) * (0.5 + Math.random());
+        console.warn(`Gemini API returned transient error. Retrying attempt ${attempt}/${maxRetries} in ${Math.round(delay)}ms. Error:`, rawMessage);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+}
+
 export const handler = async (event: any) => {
   // CORS Preflight headers
   const corsHeaders = {
@@ -57,7 +88,7 @@ export const handler = async (event: any) => {
     }
 
     const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
-    const model = "gemini-3.5-flash";
+    const model = "gemini-3.5-flash-lite";
 
     const prompt = `
       You are an expert academic coordinator specializing in curriculum breakdown. Your task is to perform an EXHAUSTIVE and GRANULAR analysis of the provided syllabus text.
@@ -78,7 +109,7 @@ export const handler = async (event: any) => {
       GOAL: Produce a complete, line-by-line mapping of the entire syllabus into a structured topic list.
     `;
 
-    const result = await ai.models.generateContent({
+    const result = await generateContentWithRetry(ai, {
       model,
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
